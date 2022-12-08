@@ -1,41 +1,37 @@
 import { Overlay, ModalImage } from "./Modal.styled"
 import { createPortal } from "react-dom";
-import React, { Component } from "react";
+import { useEffect } from "react";
 
 const modalRoot = document.querySelector(`#modal-root`);
 
-class Modal extends Component {
-    componentDidMount() {
-        window.addEventListener(`keydown`, this.handleKeyDown);
-    }
-
-    componentWillUnmount() {
-      window.removeEventListener(`keydown`, this.handleKeyDown)
-    }
-
-    handleKeyDown = e => {
+const Modal = ({ onClick, children }) => {
+    
+    useEffect(() => {
+        const handleKeyDown = e => {
         if (e.code === `Escape`) {
-           this.props.onClick();
+           onClick();
         }
     }
+        window.addEventListener(`keydown`, handleKeyDown);
 
-    handleCloseBackdrop = e => {
+        return () => {
+            window.removeEventListener(`keydown`, handleKeyDown);
+        } 
+    }, [onClick])
+
+    const handleCloseBackdrop = e => {
         if (e.currentTarget === e.target) {
-            this.props.onClick();
+            onClick();
         }
     }
-
-    render() {
-        const { children } = this.props;
 
     return createPortal(
-        <Overlay onClick={this.handleCloseBackdrop}>
+        <Overlay onClick={handleCloseBackdrop}>
             <ModalImage>
                 {children}
             </ModalImage>
         </Overlay>,
      modalRoot); 
-}
 }
 
 export default Modal;
